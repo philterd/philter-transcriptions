@@ -87,6 +87,12 @@ For an environment where transcriptions are received in bulk and processed in ba
 
 ## Running the Demo
 
+Clone this repository:
+
+```
+git clone https://github.com/philterd/philter-transcriptions.git
+```
+
 Start the Philter docker containers:
 
 ```

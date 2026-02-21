@@ -1,0 +1,11 @@
+{
+  "MedicalTranscriptionJobName": "philter-job",
+  "Media": {
+    "MediaFileUri": "s3://your-bucket/input/audio.mp3"
+  },
+  "OutputBucketName": "your-bucket",
+  "OutputKey": "output/",
+  "LanguageCode": "en-US",
+  "Specialty": "PRIMARYCARE",
+  "Type": "DICTATION"
+}

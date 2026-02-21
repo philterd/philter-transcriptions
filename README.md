@@ -14,7 +14,7 @@ For an environment where new audio narratives are continuously dropped into an S
 
 1. Put audio narratives in an S3 bucket.
 2. Use a Lambda function to process the audio files and generate transcriptions (which are written back to S3).
-3. Use a Lambda function to process the transcriptions and send them to Philter.
+3. Use a Lambda function to process the transcriptions and send them to Philter. Do whatever is required with the redacted text.
 
 ```
 [ User/System ]

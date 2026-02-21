@@ -16,12 +16,74 @@ For an environment where new audio narratives are continuously dropped into an S
 2. Use a Lambda function to process the audio files and generate transcriptions (which are written back to S3).
 3. Use a Lambda function to process the transcriptions and send them to Philter.
 
+```
+[ User/System ]
+       |
+       v (Upload MP3)
++------------------+
+|  S3: Input Bkt   |----(Event: ObjectCreated)----> [ Lambda A: Transcriber ]
++------------------+                                       |
+                                                           | (Start Job)
+                                                           v
+                                                +-----------------------+
+                                                |   Amazon Transcribe   |
+                                                +-----------+-----------+
+                                                            |
+       (JSON Output) <--------------------------------------+
+             |
+             v
++------------------+
+| S3: Raw JSON Bkt |----(Event: ObjectCreated)----> [ Lambda B: Redactor ]
++------------------+                                       |
+                                                           | (Filter PII)
+                                                           v
+                                                +-----------------------+
+                                                | S3: Final Redacted Bkt|
+                                                +-----------------------+
+```
+
 ### Batch Transcription Processing
 
 For an environment where transcriptions are received in bulk and processed in batches:
 
 1. Create an AWS Step Functions to process the transcriptions in batches.
 2. Use Amazon EventBridge to trigger the Step Functions when needed (weekly/monthly/etc.).
+
+```
+[ Scheduled Trigger ]
+           |
+           v
++-----------------------------+
+|   Amazon EventBridge        |  <-- Runs once a month
+|   (Cron: 0 0 1 * ? *)       |
++--------------+--------------+
+               |
+               v
++-----------------------------------------------------------+
+|                  AWS STEP FUNCTIONS                       |
+|  (Distributed Map / Orchestration)                        |
+|                                                           |
+|  1. List Objects in S3 Input Bucket                       |
+|  2. For Each File Found:                                  |
+|     +-----------------------------------------------+     |
+|     |  [ Choice State ]                             |     |
+|     |  Is file extension .mp3? ----(No)----> [Skip] |     |
+|     |         |                                     |     |
+|     |       (Yes)                                   |     |
+|     |         v                                     |     |
+|     |  [ Transcribe Task ]                          |     |
+|     |  StartTranscriptionJob()                      |     |
+|     +---------+-------------------------------------+     |
++---------------|-------------------------------------------+
+                |
+                v
++------------------------------+      +-------------------------+
+|      AMAZON TRANSCRIBE       |      |    AMAZON S3 BUCKETS    |
+|                              |      |                         |
+|  - Processes MP3s in Batch   +----->| [ Output Bucket ]       |
+|  - Manages internal queue    |      | (transcripts.json)      |
++------------------------------+      +-------------------------+
+```
 
 ## Running the Demo
 

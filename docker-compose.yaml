@@ -1,22 +1,11 @@
 services:
 
-  ph-eye-en:
-    image: philterd/ph-eye:1.2.1
-    container_name: philter-ph-eye-en-1
-    ports:
-      - "5000"
-    networks:
-      - philter
-
   philter:
-    image: philterd/philter:3.3.0
+    image: philterd/philter:4.0.0
     ports:
       - "8080:8080"
-    volumes:
-      - ./philter.properties:/opt/philter/philter.properties
-      - ./policies/:/opt/philter/policies/
-    networks:
-      - philter
-
-networks:
-  philter:
+    environment:
+      # Both are generated into .env; see README.md. Philter's bundled model finds names, so no
+      # PhEye service is needed.
+      PHILTER_ENCRYPTION_KEY: ${PHILTER_ENCRYPTION_KEY:?generate .env first, see README.md}
+      PHILTER_BOOTSTRAP_API_KEY: ${PHILTER_BOOTSTRAP_API_KEY:?generate .env first, see README.md}

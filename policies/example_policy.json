@@ -1,22 +1,20 @@
 {
-  "name": "example_policy",
   "identifiers": {
     "person": {
-      "removePunctuation": false,
-      "thresholds": {},
       "phEyeConfiguration": {
-        "endpoint": "http://philter-ph-eye-en-1:5000",
-        "timeout": 600,
-        "maxIdleConnections": 30,
-        "labels": [
-          "Person"
-        ]
-      }
+        "modelPath": "ph-eye-pii-en-small",
+        "labels": ["name"]
+      },
+      "phEyeFilterStrategies": [
+        {
+          "strategy": "REDACT",
+          "redactionFormat": "{{{REDACTED-%t}}}"
+        }
+      ]
     },
     "age": {
       "ageFilterStrategies": [
         {
-          "filterType": "AGE",
           "strategy": "REDACT",
           "redactionFormat": "{{{REDACTED-%t}}}"
         }
@@ -24,16 +22,12 @@
     },
     "identifiers": [
       {
-        "patientIds": [
+        "classification": "patient-id",
+        "pattern": "\\b\\d{9}\\b",
+        "identifierFilterStrategies": [
           {
-            "pattern": "^\\d{9}$",
-            "identifierFilterStrategies": [
-              {
-                "filterType": "IDENTIFIER",
-                "strategy": "REDACT",
-                "redactionFormat": "{{{REDACTED-%t}}}"
-              }
-            ]
+            "strategy": "REDACT",
+            "redactionFormat": "{{{REDACTED-%t}}}"
           }
         ]
       }
@@ -41,7 +35,6 @@
     "ssn": {
       "ssnFilterStrategies": [
         {
-          "filterType": "SSN",
           "strategy": "REDACT",
           "redactionFormat": "{{{REDACTED-%t}}}"
         }

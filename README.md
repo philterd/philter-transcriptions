@@ -87,19 +87,27 @@ For an environment where transcriptions are received in bulk and processed in ba
 
 ## Running the Demo
 
-Clone this repository:
+This demo runs Philter 4.0. Clone this repository:
 
 ```
 git clone https://github.com/philterd/philter-transcriptions.git
+cd philter-transcriptions
 ```
 
-Start the Philter docker containers:
+Generate the encryption key and API key Philter needs into `.env`, which Docker Compose reads:
+
+```
+echo "PHILTER_ENCRYPTION_KEY=$(openssl rand -base64 32)" > .env
+echo "PHILTER_BOOTSTRAP_API_KEY=sk_$(openssl rand -hex 16)" >> .env
+```
+
+Start Philter:
 
 ```
 docker compose up
 ```
 
-Now you can parse the text transcriptions by sending them to Philter:
+Now you can parse the text transcriptions by sending them to Philter. The script loads `policies/example_policy.json` into Philter the first time it runs:
 
 ```
 ./redact.sh
@@ -109,16 +117,13 @@ The response will look like the following (trimmed for readability):
 
 ```
 {
-  "filteredText": "I am asked to see the {{{REDACTED-age}}} patient today with ongoing issues around her diabetic control. Her patient ID is {{{REDACTED-id}}}. We have been fairly aggressively, downwardly adjusting her insulins, both the Lantus insulin, which we had been giving at night as well as her sliding scale Humalog insulin prior to meals. Despite frequent decreases in her insulin regimen, she continues to have somewhat low blood glucoses, most notably in the morning when the glucoses have been in the 70s despite decreasing her Lantus insulin from around 84 units down to 60 units, which is a considerable change. What I cannot explain is why her glucoses have not really climbed at all despite the decrease in insulin. The staff reports to me that her appetite is good and that she is eating as well as ever. I talked to {{{REDACTED-person}}} today. She feels a little fatigued. Otherwise, she is doing well.",
-  "piece": 0,
-  "context": "none",
+  "filteredText": "I am asked to see the {{{REDACTED-age}}} patient today with ongoing issues around her diabetic control. Her patient ID is {{{REDACTED-ssn}}}. We have been fairly aggressively, downwardly adjusting her insulins, both the Lantus insulin, which we had been giving at night as well as her sliding scale Humalog insulin prior to meals. Despite frequent decreases in her insulin regimen, she continues to have somewhat low blood glucoses, most notably in the morning when the glucoses have been in the 70s despite decreasing her Lantus insulin from around 84 units down to 60 units, which is a considerable change. What I cannot explain is why her glucoses have not really climbed at all despite the decrease in insulin. The staff reports to me that her appetite is good and that she is eating as well as ever. I talked to {{{REDACTED-name}}} today. She feels a little fatigued. Otherwise, she is doing well.",
   "explanation": {
     "appliedSpans": [
       {
         "characterStart": 22,
         "characterEnd": 33,
         "filterType": "AGE",
-        "context": "none",
         "confidence": 0.9,
         "text": "69 year old",
         "replacement": "{{{REDACTED-age}}}"
@@ -126,53 +131,23 @@ The response will look like the following (trimmed for readability):
       {
         "characterStart": 115,
         "characterEnd": 124,
-        "filterType": "IDENTIFIER",
-        "context": "none",
+        "filterType": "SSN",
         "confidence": 0.9,
         "text": "231113490",
-        "replacement": "{{{REDACTED-id}}}"
+        "replacement": "{{{REDACTED-ssn}}}"
       },
       {
         "characterStart": 801,
         "characterEnd": 805,
         "filterType": "PERSON",
-        "context": "none",
-        "confidence": 0.9312306046485901,
+        "confidence": 0.9958448099504776,
         "text": "Anna",
-        "replacement": "{{{REDACTED-person}}}"
-      }
-    ],
-    "identifiedSpans": [
-      {
-        "characterStart": 22,
-        "characterEnd": 33,
-        "filterType": "AGE",
-        "context": "none",
-        "confidence": 0.9,
-        "text": "69 year old",
-        "replacement": "{{{REDACTED-age}}}"
-      },
-      {
-        "characterStart": 115,
-        "characterEnd": 124,
-        "filterType": "IDENTIFIER",
-        "context": "none",
-        "classification": "custom-identifier",
-        "confidence": 0.9,
-        "text": "231113490",
-        "replacement": "{{{REDACTED-id}}}"
-      },
-      {
-        "characterStart": 801,
-        "characterEnd": 805,
-        "filterType": "PERSON",
-        "context": "none",
-        "confidence": 0.9312306046485901,
-        "text": "Anna",
-        "replacement": "{{{REDACTED-person}}}"
+        "replacement": "{{{REDACTED-name}}}"
       }
     ]
   },
   "tokens": 153
 }
 ```
+
+The patient ID is nine digits, so Philter's SSN filter matches it as well as the policy's `patient-id` pattern, and the SSN label wins. It is redacted either way. If the label matters, drop the `ssn` filter from the policy.

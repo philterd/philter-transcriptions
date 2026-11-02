@@ -4,7 +4,7 @@ The purpose of this repository is to demonstrate a proof-of-concept of how Philt
 
 Because available samples of medical transcriptions are limited, and because the actual transcription is not the primary focus here, we are using samples of text that has already been transcribed. However, in this repository we provide the plumbing (and architecture ideas) to produce the text transcripts from audio files.
 
-The transcriptions used in this repository were acquired from https://www.mtsamples.com/site/pages/sample.asp?Type=21-Endocrinology&Sample=1134-Diabetes+Mellitus+%2D+SOAP+Note+%2D+2 and then modified to include PII.
+The transcription in `transcribe/job-output.json` is invented for this demo, including the PII in it. It does not describe a real patient.
 
 ## Potential AWS Architectures for Redacting Audio Transcriptions
 
@@ -117,36 +117,36 @@ The response will look like the following (trimmed for readability):
 
 ```
 {
-  "filteredText": "I am asked to see the {{{REDACTED-age}}} patient today with ongoing issues around her diabetic control. Her patient ID is {{{REDACTED-ssn}}}. We have been fairly aggressively, downwardly adjusting her insulins, both the Lantus insulin, which we had been giving at night as well as her sliding scale Humalog insulin prior to meals. Despite frequent decreases in her insulin regimen, she continues to have somewhat low blood glucoses, most notably in the morning when the glucoses have been in the 70s despite decreasing her Lantus insulin from around 84 units down to 60 units, which is a considerable change. What I cannot explain is why her glucoses have not really climbed at all despite the decrease in insulin. The staff reports to me that her appetite is good and that she is eating as well as ever. I talked to {{{REDACTED-name}}} today. She feels a little fatigued. Otherwise, she is doing well.",
+  "filteredText": "I saw the {{{REDACTED-age}}} patient today for follow-up of his type 2 diabetes. His patient ID is {{{REDACTED-ssn}}}. Since his last visit we reduced his evening glargine from 40 units to 32 units after several low readings overnight, and he has stayed on metformin 1000 milligrams twice a day. His fasting glucose readings this week have been between 110 and 140, which is an improvement. He reports no dizziness or night sweats. His feet show no new sores, and sensation is intact. I spoke with his daughter {{{REDACTED-name}}} by phone, and she confirms he is taking his medications as prescribed. We will repeat his A1c in three months and continue the current plan.",
   "explanation": {
     "appliedSpans": [
       {
-        "characterStart": 22,
-        "characterEnd": 33,
+        "characterStart": 10,
+        "characterEnd": 21,
         "filterType": "AGE",
         "confidence": 0.9,
-        "text": "69 year old",
+        "text": "72 year old",
         "replacement": "{{{REDACTED-age}}}"
       },
       {
-        "characterStart": 115,
-        "characterEnd": 124,
+        "characterStart": 92,
+        "characterEnd": 101,
         "filterType": "SSN",
         "confidence": 0.9,
-        "text": "231113490",
+        "text": "482019376",
         "replacement": "{{{REDACTED-ssn}}}"
       },
       {
-        "characterStart": 801,
-        "characterEnd": 805,
+        "characterStart": 495,
+        "characterEnd": 500,
         "filterType": "PERSON",
-        "confidence": 0.9958448099504776,
-        "text": "Anna",
+        "confidence": 0.994440094664813,
+        "text": "Maria",
         "replacement": "{{{REDACTED-name}}}"
       }
     ]
   },
-  "tokens": 153
+  "tokens": 115
 }
 ```
 
